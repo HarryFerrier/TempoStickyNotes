@@ -1,5 +1,5 @@
 import { useEffect, type Dispatch, type RefObject } from 'react'
-import type { NotesAction } from '../lib/notesReducer'
+import type { NotesAction } from '../lib/notesReducer/notesReducer'
 
 /**
  * Keeps notes inside the board when it shrinks: a smaller window, the notes

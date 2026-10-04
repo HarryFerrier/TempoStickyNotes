@@ -37,6 +37,14 @@ npm run preview
 
 `npm run build` type-checks the project and writes the production build to `dist/`. `npm run preview` serves that build at http://localhost:4173 by default.
 
+## Test
+
+```bash
+npm test
+```
+
+Runs the unit tests with Vitest: the notes reducer, the geometry helpers, and saved-data validation and the stores.
+
 ## Lint
 
 ```bash
@@ -60,3 +68,4 @@ The same description is in the app, behind the ⓘ button in the header.
 - Vite 8
 - Tailwind CSS 4
 - Oxlint 1
+- Vitest 5

@@ -1,6 +1,6 @@
-import { createLocalStorageStore } from './localStorageStore'
-import { createMockApiStore } from './mockApiStore'
-import type { NoteStore } from './noteStore'
+import { createLocalStorageStore } from '../localStorageStore/localStorageStore'
+import { createMockApiStore } from '../mockApiStore/mockApiStore'
+import type { NoteStore } from '../noteStore/noteStore'
 
 function numberParam(params: URLSearchParams, name: string) {
   const value = Number(params.get(name))

@@ -1,4 +1,4 @@
-import { NOTE_COLORS, type Note, type NoteColor, type Rect, type SavedBoard } from '../../models/note'
+import { NOTE_COLORS, type Note, type NoteColor, type Rect, type SavedBoard } from '../../../models/note'
 
 /** Where the board is saved. Both stores are async, so they can be swapped without touching the app. */
 export type NoteStore = {

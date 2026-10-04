@@ -1,4 +1,4 @@
-import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE, type Point, type Rect, type Size } from '../models/note'
+import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE, type Point, type Rect, type Size } from '../../models/note'
 
 const NEW_NOTE_OFFSET = 24
 const NEW_NOTE_OFFSET_STEPS = 5

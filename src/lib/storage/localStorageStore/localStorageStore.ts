@@ -1,5 +1,5 @@
-import type { NoteStore } from './noteStore'
-import { parseSavedBoard } from './noteStore'
+import type { NoteStore } from '../noteStore/noteStore'
+import { parseSavedBoard } from '../noteStore/noteStore'
 
 const STORAGE_KEY = 'tempo-sticky-notes'
 
