@@ -1,16 +1,16 @@
 import { useState } from 'react'
-import type { LayerDirection, Note } from '../../models/note'
+import { useNotesDispatch } from '../../hooks/useNotesDispatch'
+import type { Note } from '../../models/note'
 import { ArrowIcon, ChevronIcon } from '../Icons/Icons'
-import { useReorderAnimation } from './useReorderAnimation'
+import { useReorderAnimation } from '../../hooks/useReorderAnimation'
 
 type NotesPanelProps = {
   notes: Note[]
   selectedId: string | null
-  onSelect: (id: string) => void
-  onMoveLayer: (id: string, direction: LayerDirection) => void
 }
 
-export function NotesPanel({ notes, selectedId, onSelect, onMoveLayer }: NotesPanelProps) {
+export function NotesPanel({ notes, selectedId }: NotesPanelProps) {
+  const dispatch = useNotesDispatch()
   const [collapsed, setCollapsed] = useState(false)
   const frontFirst = [...notes].sort((a, b) => b.z - a.z)
   const rowRef = useReorderAnimation(frontFirst.map((note) => note.id))
@@ -66,7 +66,7 @@ export function NotesPanel({ notes, selectedId, onSelect, onMoveLayer }: NotesPa
                     <button
                       type="button"
                       aria-current={selected || undefined}
-                      onClick={() => onSelect(note.id)}
+                      onClick={() => dispatch({ type: 'select', id: note.id })}
                       className="flex h-full min-w-0 flex-1 items-center gap-3 rounded-4 pl-3 text-left text-14 text-fg"
                     >
                       <span
@@ -83,13 +83,13 @@ export function NotesPanel({ notes, selectedId, onSelect, onMoveLayer }: NotesPa
                           direction="up"
                           label="Bring forward"
                           disabled={index === 0}
-                          onClick={() => onMoveLayer(note.id, 'forward')}
+                          onClick={() => dispatch({ type: 'moveLayer', id: note.id, direction: 'forward' })}
                         />
                         <LayerButton
                           direction="down"
                           label="Send backward"
                           disabled={index === frontFirst.length - 1}
-                          onClick={() => onMoveLayer(note.id, 'backward')}
+                          onClick={() => dispatch({ type: 'moveLayer', id: note.id, direction: 'backward' })}
                         />
                       </>
                     )}

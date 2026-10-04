@@ -1,25 +1,26 @@
 import { useRef, type PointerEvent, type RefObject } from 'react'
-import type { Note, Rect } from '../../models/note'
+import { useNotesDispatch } from '../../hooks/useNotesDispatch'
+import { createId } from '../../lib/createId'
+import type { Note } from '../../models/note'
 import { EmptyBoardHint } from '../EmptyBoardHint/EmptyBoardHint'
-import { StickyNote, type NoteActions } from '../StickyNote/StickyNote'
+import { StickyNote } from '../StickyNote/StickyNote'
 import { TrashZone } from '../TrashZone/TrashZone'
-import { useDrawToCreate } from './useDrawToCreate'
+import { useDrawToCreate } from '../../hooks/useDrawToCreate'
 
 type BoardProps = {
   boardRef: RefObject<HTMLElement | null>
   notes: Note[]
   selectedId: string | null
-  actions: NoteActions
-  onCreateNote: (rect: Rect) => void
 }
 
-export function Board({ boardRef, notes, selectedId, actions, onCreateNote }: BoardProps) {
+export function Board({ boardRef, notes, selectedId }: BoardProps) {
+  const dispatch = useNotesDispatch()
   const trashRef = useRef<HTMLDivElement>(null)
-  const { draftRef, readoutRef, handlers } = useDrawToCreate(onCreateNote)
+  const { draftRef, readoutRef, handlers } = useDrawToCreate((rect) => dispatch({ type: 'add', id: createId(), rect }))
 
   function onPointerDown(event: PointerEvent<HTMLElement>) {
     // Pressing empty board clears the selection, then may start a draw.
-    if (event.target === event.currentTarget) actions.deselect()
+    if (event.target === event.currentTarget) dispatch({ type: 'select', id: null })
     handlers.onPointerDown(event)
   }
 
@@ -37,13 +38,7 @@ export function Board({ boardRef, notes, selectedId, actions, onCreateNote }: Bo
       {/* Own stacking context, so note z-indexes never climb above the draw outline. */}
       <div className="pointer-events-none absolute inset-0 isolate">
         {notes.map((note) => (
-          <StickyNote
-            key={note.id}
-            note={note}
-            selected={note.id === selectedId}
-            trashRef={trashRef}
-            actions={actions}
-          />
+          <StickyNote key={note.id} note={note} selected={note.id === selectedId} trashRef={trashRef} />
         ))}
       </div>
 
