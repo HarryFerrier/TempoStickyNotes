@@ -2,6 +2,8 @@
 
 A sticky-notes web app for desktop browsers, built with React, TypeScript and Vite.
 
+![The board with four notes. The selected purple note shows its colour swatches, and the notes panel on the right lists the notes front-most first.](.github/readme/board.png)
+
 ## Requirements
 
 - Node.js 22.12 or later (Node 20 works from 20.19, but reached end of life in April 2026)
