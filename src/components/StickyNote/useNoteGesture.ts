@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
+import { useRef, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
 import { movedRect, resizedRect, sameRect } from '../../lib/geometry'
 import type { Note, Point, Rect, Size } from '../../models/note'
 
@@ -10,24 +10,44 @@ type Gesture = {
   start: Point
   startRect: Rect
   rect: Rect
+  overTrash: boolean
   stopListening: () => void
 }
 
-const KEYBOARD_RESIZE_STEP = 10
+type NoteGestureOptions = {
+  trashRef: RefObject<HTMLElement | null>
+  onRectChange: (id: string, rect: Rect) => void
+  onDelete: (id: string) => void
+}
 
-const KEYBOARD_RESIZE: Record<string, Point> = {
-  ArrowRight: { x: KEYBOARD_RESIZE_STEP, y: 0 },
-  ArrowLeft: { x: -KEYBOARD_RESIZE_STEP, y: 0 },
-  ArrowDown: { x: 0, y: KEYBOARD_RESIZE_STEP },
-  ArrowUp: { x: 0, y: -KEYBOARD_RESIZE_STEP },
+const KEYBOARD_STEP = 10
+
+/** Arrow keys move a focused note, or resize it from a focused handle, by this much. */
+const ARROW_DELTAS: Record<string, Point> = {
+  ArrowRight: { x: KEYBOARD_STEP, y: 0 },
+  ArrowLeft: { x: -KEYBOARD_STEP, y: 0 },
+  ArrowDown: { x: 0, y: KEYBOARD_STEP },
+  ArrowUp: { x: 0, y: -KEYBOARD_STEP },
+}
+
+function isPointerOver(element: HTMLElement | null, event: PointerEvent<HTMLElement>) {
+  if (!element) return false
+  const bounds = element.getBoundingClientRect()
+  return (
+    event.clientX >= bounds.left &&
+    event.clientX <= bounds.right &&
+    event.clientY >= bounds.top &&
+    event.clientY <= bounds.bottom
+  )
 }
 
 /**
  * Moving (by the strip) and resizing (by the corner handle). While the pointer
  * moves, the note element is updated directly; the new rect is committed to
- * state once, on release. Escape puts the note back where it started.
+ * state once, on release. Releasing a move with the pointer over the trash zone
+ * deletes the note instead. Escape puts the note back where it started.
  */
-export function useNoteGesture(note: Note, onRectChange: (id: string, rect: Rect) => void) {
+export function useNoteGesture(note: Note, { trashRef, onRectChange, onDelete }: NoteGestureOptions) {
   const noteRef = useRef<HTMLElement>(null)
   const gesture = useRef<Gesture | null>(null)
 
@@ -45,8 +65,25 @@ export function useNoteGesture(note: Note, onRectChange: (id: string, rect: Rect
     element.style.height = `${rect.height}px`
   }
 
+  function setOverTrash(current: Gesture, overTrash: boolean) {
+    if (current.overTrash === overTrash) return
+    current.overTrash = overTrash
+    const trash = trashRef.current
+    const element = noteRef.current
+    if (overTrash) {
+      if (trash) trash.dataset.armed = ''
+      if (element) element.dataset.overTrash = ''
+    } else {
+      delete trash?.dataset.armed
+      delete element?.dataset.overTrash
+    }
+  }
+
   function end() {
-    gesture.current?.stopListening()
+    const current = gesture.current
+    if (!current) return
+    setOverTrash(current, false)
+    current.stopListening()
     gesture.current = null
     delete noteRef.current?.dataset.gesture
   }
@@ -58,7 +95,9 @@ export function useNoteGesture(note: Note, onRectChange: (id: string, rect: Rect
   }
 
   function start(kind: GestureKind, event: PointerEvent<HTMLElement>) {
-    if (event.button !== 0 || !noteRef.current) return
+    // Buttons inside the strip, like the colour swatches, keep their own clicks.
+    const pressedButton = kind === 'move' && (event.target as HTMLElement).closest('button')
+    if (event.button !== 0 || !noteRef.current || pressedButton) return
     // Stops text selection while dragging.
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -74,6 +113,7 @@ export function useNoteGesture(note: Note, onRectChange: (id: string, rect: Rect
       start: { x: event.clientX, y: event.clientY },
       startRect: note.rect,
       rect: note.rect,
+      overTrash: false,
       stopListening: () => window.removeEventListener('keydown', onKeyDown),
     }
     noteRef.current.dataset.gesture = kind
@@ -91,14 +131,17 @@ export function useNoteGesture(note: Note, onRectChange: (id: string, rect: Rect
           ? movedRect(current.startRect, delta, bounds)
           : resizedRect(current.startRect, delta, bounds)
       paint(current.rect)
+      if (current.kind === 'move') setOverTrash(current, isPointerOver(trashRef.current, event))
     },
 
     onPointerUp(event: PointerEvent<HTMLElement>) {
       const current = gesture.current
       if (!current || current.pointerId !== event.pointerId) return
 
+      const deleting = current.overTrash
       end()
-      if (!sameRect(current.rect, current.startRect)) onRectChange(note.id, current.rect)
+      if (deleting) onDelete(note.id)
+      else if (!sameRect(current.rect, current.startRect)) onRectChange(note.id, current.rect)
     },
 
     onPointerCancel: cancel,
@@ -112,12 +155,31 @@ export function useNoteGesture(note: Note, onRectChange: (id: string, rect: Rect
     startResize: (event: PointerEvent<HTMLElement>) => start('resize', event),
 
     onResizeKeyDown(event: KeyboardEvent<HTMLElement>) {
-      const delta = KEYBOARD_RESIZE[event.key]
+      const delta = ARROW_DELTAS[event.key]
       const bounds = boardSize()
       if (!delta || !bounds) return
 
       event.preventDefault()
       const rect = resizedRect(note.rect, delta, bounds)
+      if (!sameRect(rect, note.rect)) onRectChange(note.id, rect)
+    },
+
+    /** Keys on the focused note itself. Keys typed in its title or text are left alone. */
+    onNoteKeyDown(event: KeyboardEvent<HTMLElement>) {
+      if (event.target !== event.currentTarget) return
+
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault()
+        onDelete(note.id)
+        return
+      }
+
+      const delta = ARROW_DELTAS[event.key]
+      const bounds = boardSize()
+      if (!delta || !bounds) return
+
+      event.preventDefault()
+      const rect = movedRect(note.rect, delta, bounds)
       if (!sameRect(rect, note.rect)) onRectChange(note.id, rect)
     },
   }

@@ -63,6 +63,14 @@ export function ChevronIcon({ direction, ...props }: IconProps & { direction: 'l
   )
 }
 
+export function ArrowIcon({ direction, ...props }: IconProps & { direction: 'up' | 'down' }) {
+  return (
+    <Icon {...props}>
+      <path d={direction === 'up' ? 'M8 13V3M4 7l4-4 4 4' : 'M8 3v10M4 9l4 4 4-4'} />
+    </Icon>
+  )
+}
+
 export function TrashIcon(props: IconProps) {
   return (
     <Icon {...props}>
