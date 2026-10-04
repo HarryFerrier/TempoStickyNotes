@@ -43,7 +43,7 @@ npm run preview
 npm test
 ```
 
-Runs the unit tests with Vitest: the notes reducer, the geometry helpers, and saved-data validation and the stores.
+Runs the unit and component tests with Vitest: the notes reducer, the geometry helpers, saved-data validation and the stores, and the components' behaviour with React Testing Library (editing, selection, keyboard rules, the notes panel and the colour swatches).
 
 ## End-to-end tests
 
