@@ -1,12 +1,14 @@
 import { useState } from 'react'
+import type { Note } from '../../models/note'
 import { ChevronIcon } from '../Icons/Icons'
 
 type NotesPanelProps = {
-  noteCount: number
+  notes: Note[]
 }
 
-export function NotesPanel({ noteCount }: NotesPanelProps) {
+export function NotesPanel({ notes }: NotesPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const frontFirst = [...notes].sort((a, b) => b.z - a.z)
 
   return (
     <aside
@@ -16,12 +18,12 @@ export function NotesPanel({ noteCount }: NotesPanelProps) {
       }`}
     >
       {/* Fixed width so the content is clipped, not reflowed, while the panel animates open. */}
-      <div className={collapsed ? 'w-10' : 'w-55'}>
-        <div className={`flex h-12 items-center ${collapsed ? 'justify-center' : 'justify-between pr-3 pl-5'}`}>
+      <div className={`flex h-full flex-col ${collapsed ? 'w-10' : 'w-55'}`}>
+        <div className={`flex h-12 shrink-0 items-center ${collapsed ? 'justify-center' : 'justify-between pr-3 pl-5'}`}>
           {!collapsed && (
             <h2 className="flex items-baseline gap-2 text-11 font-semibold tracking-eyebrow text-fg uppercase">
               Notes
-              <span className="font-normal text-fg-meta">{noteCount}</span>
+              <span className="font-normal text-fg-meta">{notes.length}</span>
             </h2>
           )}
 
@@ -36,10 +38,29 @@ export function NotesPanel({ noteCount }: NotesPanelProps) {
           </button>
         </div>
 
-        {!collapsed && noteCount === 0 && (
+        {!collapsed && notes.length === 0 && (
           <p className="px-5 text-12 leading-normal text-fg-meta">
             Notes you add are listed here, front-most first.
           </p>
+        )}
+
+        {!collapsed && notes.length > 0 && (
+          <>
+            <p className="px-5 pb-2 text-11 tracking-eyebrow text-fg-meta uppercase">Front</p>
+            <ol aria-label="Notes, front-most first" className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-2">
+              {frontFirst.map((note) => (
+                <li key={note.id} className="flex h-10 shrink-0 items-center gap-3 rounded-4 px-3 text-14 text-fg">
+                  <span
+                    aria-hidden="true"
+                    data-color={note.color}
+                    className="h-3.5 w-5 shrink-0 rounded-xs border-t-[3px] border-note-strip bg-note"
+                  />
+                  <span className={`truncate ${note.title ? '' : 'text-fg-meta'}`}>{note.title || 'Untitled'}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="px-5 py-4 text-11 tracking-eyebrow text-fg-meta uppercase">Back</p>
+          </>
         )}
       </div>
     </aside>
