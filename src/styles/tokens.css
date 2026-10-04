@@ -127,6 +127,8 @@
   --board-dot: var(--color-alloy-200);
   --header: var(--color-ink);
   --header-line: transparent;
+  --header-control: var(--color-alloy-800);
+  --panel: var(--color-neutral-50);
 
   --fg: var(--color-ink);
   --fg-secondary: var(--color-alloy-800);
@@ -190,6 +192,7 @@
   --board: var(--color-eclipse-1100);
   --board-dot: rgba(255, 255, 255, 0.09);
   --header-line: rgba(255, 255, 255, 0.08);
+  --panel: var(--color-eclipse-1000);
 
   --fg: var(--color-neutral-50);
   --fg-secondary: rgba(254, 254, 254, 0.86);
@@ -242,6 +245,8 @@
   --color-board-dot: var(--board-dot);
   --color-header: var(--header);
   --color-header-line: var(--header-line);
+  --color-header-control: var(--header-control);
+  --color-panel: var(--panel);
 
   --color-fg: var(--fg);
   --color-fg-secondary: var(--fg-secondary);
