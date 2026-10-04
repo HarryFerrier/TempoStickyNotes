@@ -1,6 +1,6 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
-import { drawnRect, meetsMinimumSize } from '../../lib/geometry'
-import { MIN_NOTE_SIZE, type Point, type Rect } from '../../models/note'
+import { drawnRect, meetsMinimumSize } from '../lib/geometry'
+import { MIN_NOTE_SIZE, type Point, type Rect } from '../models/note'
 
 /** Movement below this many pixels is treated as a click, not a draw. */
 const DRAG_THRESHOLD = 4
