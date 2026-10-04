@@ -1,4 +1,4 @@
-import type { NoteStore } from './noteStore'
+import type { NoteStore } from '../noteStore/noteStore'
 
 type MockApiOptions = {
   /** Response time range in milliseconds, picked at random per request. */

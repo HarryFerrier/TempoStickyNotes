@@ -1,5 +1,5 @@
 import { useRef, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
-import { movedRect, resizedRect, sameRect } from '../lib/geometry'
+import { movedRect, resizedRect, sameRect } from '../lib/geometry/geometry'
 import type { Note, Point, Rect, Size } from '../models/note'
 
 type GestureKind = 'move' | 'resize'

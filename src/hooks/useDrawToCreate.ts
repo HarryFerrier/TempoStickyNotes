@@ -1,5 +1,5 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
-import { drawnRect, meetsMinimumSize } from '../lib/geometry'
+import { drawnRect, meetsMinimumSize } from '../lib/geometry/geometry'
 import { MIN_NOTE_SIZE, type Point, type Rect } from '../models/note'
 
 /** Movement below this many pixels is treated as a click, not a draw. */

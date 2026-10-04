@@ -6,8 +6,8 @@ import { useNotes } from './hooks/useNotes'
 import { NotesDispatchContext } from './hooks/useNotesDispatch'
 import { useTheme } from './hooks/useTheme'
 import { createId } from './lib/createId'
-import { newNoteRect } from './lib/geometry'
-import { createNoteStore } from './lib/storage/createNoteStore'
+import { newNoteRect } from './lib/geometry/geometry'
+import { createNoteStore } from './lib/storage/createNoteStore/createNoteStore'
 
 // Chosen once per page load; see createNoteStore for the demo URL options.
 const store = createNoteStore()

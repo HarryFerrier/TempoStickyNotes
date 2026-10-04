@@ -1,5 +1,5 @@
-import { NOTE_COLORS, type LayerDirection, type Note, type NoteContent, type Rect, type SavedBoard, type Size } from '../models/note'
-import { clampRectToBounds, sameRect } from './geometry'
+import { NOTE_COLORS, type LayerDirection, type Note, type NoteContent, type Rect, type SavedBoard, type Size } from '../../models/note'
+import { clampRectToBounds, sameRect } from '../geometry/geometry'
 
 export type NotesState = {
   notes: Note[]

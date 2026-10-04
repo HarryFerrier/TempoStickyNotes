@@ -1,5 +1,5 @@
 import { createContext, useContext, type Dispatch } from 'react'
-import type { NotesAction } from '../lib/notesReducer'
+import type { NotesAction } from '../lib/notesReducer/notesReducer'
 
 /**
  * Only `dispatch` goes through context. It never changes, so reading it never

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type Dispatch } from 'react'
-import type { NotesAction, NotesState } from '../lib/notesReducer'
-import type { NoteStore } from '../lib/storage/noteStore'
+import type { NotesAction, NotesState } from '../lib/notesReducer/notesReducer'
+import type { NoteStore } from '../lib/storage/noteStore/noteStore'
 import type { SaveState } from '../models/note'
 
 const SAVE_DEBOUNCE_MS = 600
