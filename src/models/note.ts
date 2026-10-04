@@ -2,6 +2,15 @@ export const NOTE_COLORS = ['clarity', 'vision', 'ignition', 'success', 'paper']
 
 export type NoteColor = (typeof NOTE_COLORS)[number]
 
+/** Names people see, for the swatch buttons. */
+export const NOTE_COLOR_LABELS: Record<NoteColor, string> = {
+  clarity: 'Blue',
+  vision: 'Purple',
+  ignition: 'Orange',
+  success: 'Green',
+  paper: 'Paper',
+}
+
 export type Point = {
   x: number
   y: number
@@ -24,6 +33,11 @@ export type Note = {
   text: string
   color: NoteColor
 }
+
+/** The fields a person can edit directly. */
+export type NoteContent = Pick<Note, 'title' | 'text' | 'color'>
+
+export type LayerDirection = 'forward' | 'backward'
 
 export const DEFAULT_NOTE_SIZE: Size = { width: 240, height: 180 }
 export const MIN_NOTE_SIZE: Size = { width: 160, height: 120 }
