@@ -1,4 +1,4 @@
-export type SaveState = 'saved' | 'saving' | 'error'
+import type { SaveState } from '../../models/note'
 
 const LABEL: Record<SaveState, string> = {
   saved: 'All changes saved',

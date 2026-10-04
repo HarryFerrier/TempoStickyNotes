@@ -1,4 +1,5 @@
-import { NOTE_COLORS, type LayerDirection, type Note, type NoteContent, type Rect } from '../models/note'
+import { NOTE_COLORS, type LayerDirection, type Note, type NoteContent, type Rect, type SavedBoard, type Size } from '../models/note'
+import { clampRectToBounds, sameRect } from './geometry'
 
 export type NotesState = {
   notes: Note[]
@@ -19,6 +20,10 @@ export type NotesAction =
   | { type: 'remove'; id: string }
   /** Swaps the note's z with the next note in front of it or behind it. */
   | { type: 'moveLayer'; id: string; direction: LayerDirection }
+  /** Replaces the board with saved data. */
+  | { type: 'load'; board: SavedBoard }
+  /** Moves any note that sticks out of the board back inside it, for when the board shrinks. */
+  | { type: 'fitToBoard'; bounds: Size }
 
 export const INITIAL_NOTES_STATE: NotesState = { notes: [], selectedId: null, created: 0 }
 
@@ -35,6 +40,17 @@ function bringToFront(notes: Note[], id: string) {
   // The same array back means nothing changed, so React can skip the re-render.
   if (notes.find((note) => note.id === id)?.z === top) return notes
   return patchNote(notes, id, { z: top + 1 })
+}
+
+function fitToBoard(notes: Note[], bounds: Size) {
+  let changed = false
+  const fitted = notes.map((note) => {
+    const rect = clampRectToBounds(note.rect, bounds)
+    if (sameRect(rect, note.rect)) return note
+    changed = true
+    return { ...note, rect }
+  })
+  return changed ? fitted : notes
 }
 
 function moveLayer(notes: Note[], id: string, direction: LayerDirection) {
@@ -90,6 +106,14 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
 
     case 'moveLayer': {
       const notes = moveLayer(state.notes, action.id, action.direction)
+      return notes === state.notes ? state : { ...state, notes }
+    }
+
+    case 'load':
+      return { notes: action.board.notes, selectedId: null, created: action.board.created }
+
+    case 'fitToBoard': {
+      const notes = fitToBoard(state.notes, action.bounds)
       return notes === state.notes ? state : { ...state, notes }
     }
   }

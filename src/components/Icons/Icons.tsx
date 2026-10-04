@@ -38,6 +38,23 @@ export function PlusIcon(props: IconProps) {
   )
 }
 
+export function InfoIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="8" cy="8" r="6.25" />
+      <path d="M8 7.25v3.75M8 5h.01" />
+    </Icon>
+  )
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m4 4 8 8M12 4l-8 8" />
+    </Icon>
+  )
+}
+
 export function MoonIcon(props: IconProps) {
   return (
     <Icon {...props}>

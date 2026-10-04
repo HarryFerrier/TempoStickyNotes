@@ -34,6 +34,15 @@ export type Note = {
   color: NoteColor
 }
 
+/** What gets saved: the notes, and the counter that picks the next note's colour. Selection is never saved. */
+export type SavedBoard = {
+  version: 1
+  notes: Note[]
+  created: number
+}
+
+export type SaveState = 'saved' | 'saving' | 'error'
+
 /** The fields a person can edit directly. */
 export type NoteContent = Pick<Note, 'title' | 'text' | 'color'>
 
