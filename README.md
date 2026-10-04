@@ -45,6 +45,14 @@ npm test
 
 Runs the unit tests with Vitest: the notes reducer, the geometry helpers, and saved-data validation and the stores.
 
+## End-to-end tests
+
+```bash
+npm run e2e
+```
+
+Builds the app, serves the production build, and runs Playwright tests in your installed Chrome: drawing and editing a note and finding it after a reload, moving and resizing, and deleting on the trash zone. Without Chrome installed, run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`.
+
 ## Lint
 
 ```bash
@@ -69,3 +77,4 @@ The same description is in the app, behind the ⓘ button in the header.
 - Tailwind CSS 4
 - Oxlint 1
 - Vitest 5
+- Playwright 1
