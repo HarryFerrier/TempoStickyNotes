@@ -1,32 +1,66 @@
-# React + TypeScript + Vite
+# Tempo Sticky Notes
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This project is a desktop sticky-notes application built in React + TypeScript with Vite.
 
-Currently, two official plugins are available:
+## Quick start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev -- --host
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Build
+
+```bash
+npm run build
+```
+
+## Working model
+
+We are not treating this as one giant unreviewed build. Work is split into small ticket-sized slices and merged into main only when each chunk is complete and reviewed.
+
+## Architecture principles
+
+We are aiming for an elegant, easy-to-understand codebase. The guiding rule is simple code for complex problems, not complexity for the sake of it.
+
+For each component, keep the structure together in a component folder:
+
+- component file
+- component storybook
+- component tests
+
+Example:
+
+```text
+src/components/NoteCard/
+  NoteCard.tsx
+  NoteCard.stories.tsx
+  NoteCard.test.tsx
+```
+
+If an `index.ts` export is genuinely useful, we can add it, but only when it improves clarity or developer ergonomics. Avoid unnecessary barrel files.
+
+See:
+- [docs/iteration-plan.md](docs/iteration-plan.md)
+- [docs/branching.md](docs/branching.md)
+
+## Ticket flow
+
+- One branch per ticket
+- One PR per ticket
+- Review before merge
+- Merge to main only once satisfied
+
+This keeps the main branch stable and makes it easier for reviewers to assess the work in plain chunks rather than a large, hard-to-read single commit.
+
+## Project brief
+
+This app follows the design handoff captured in the project instructions and the design tokens in `src/styles/tokens.css`.
+
+## Tech stack
+
+- React
+- TypeScript
+- Vite
+- CSS / design tokens
+- Local storage persistence as required by the ticket flow
