@@ -5,6 +5,7 @@ import { NotesPanel } from './components/NotesPanel/NotesPanel'
 import { useNotes } from './hooks/useNotes'
 import { NotesDispatchContext } from './hooks/useNotesDispatch'
 import { useTheme } from './hooks/useTheme'
+import { useUndoShortcuts } from './hooks/useUndoShortcuts'
 import { createId } from './lib/createId'
 import { newNoteRect } from './lib/geometry/geometry'
 import { createNoteStore } from './lib/storage/createNoteStore/createNoteStore'
@@ -16,6 +17,7 @@ function App() {
   const { theme, toggleTheme } = useTheme()
   const { state, dispatch, loaded, saveStatus } = useNotes(store)
   const { notes, selectedId } = state
+  useUndoShortcuts(dispatch)
   const boardRef = useRef<HTMLElement>(null)
   const newNotePresses = useRef(0)
 

@@ -55,7 +55,8 @@ export function AboutDialog() {
               pure reducer owns the notes and the selection, and every change is a typed action, so the compiler
               rejects any action the reducer doesn't handle. Only the reducer's dispatch is shared through context.
               Note data is passed down as props, which lets each memoised note re-render only when its own data
-              changes.
+              changes. Because every change goes through the reducer, it also keeps an undo history: Cmd/Ctrl+Z
+              undoes and Shift+Cmd/Ctrl+Z redoes, with a burst of typing undone as one step.
             </p>
             <p>
               Drawing, moving and resizing use pointer events with pointer capture. During a drag, the outline or

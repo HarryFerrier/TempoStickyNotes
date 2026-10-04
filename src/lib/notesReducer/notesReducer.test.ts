@@ -106,7 +106,7 @@ describe('load', () => {
   it('replaces the board and clears the selection', () => {
     const saved: Note = { id: 'x', rect, z: 7, title: 'Saved', text: '', color: 'success' }
     const state = notesReducer(threeNotes, { type: 'load', board: { version: 1, notes: [saved], created: 9 } })
-    expect(state).toEqual({ notes: [saved], selectedId: null, created: 9 })
+    expect(state).toMatchObject({ notes: [saved], selectedId: null, created: 9, past: [], future: [] })
   })
 })
 
@@ -119,5 +119,72 @@ describe('fitToBoard', () => {
 
   it('returns the same state when every note already fits', () => {
     expect(notesReducer(threeNotes, { type: 'fitToBoard', bounds: { width: 1000, height: 700 } })).toBe(threeNotes)
+  })
+})
+
+describe('undo and redo', () => {
+  const titles = (state: NotesState) => state.notes.map((note) => note.title)
+
+  it('undoes and redoes adding a note', () => {
+    const undone = notesReducer(threeNotes, { type: 'undo' })
+    expect(undone.notes.map((note) => note.id)).toEqual(['a', 'b'])
+    const redone = notesReducer(undone, { type: 'redo' })
+    expect(redone.notes.map((note) => note.id)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('brings back a deleted note', () => {
+    const removed = notesReducer(threeNotes, { type: 'remove', id: 'b' })
+    expect(notesReducer(removed, { type: 'undo' }).notes).toEqual(threeNotes.notes)
+  })
+
+  it('undoes a burst of typing in one field as one step', () => {
+    let state = threeNotes
+    for (const title of ['H', 'Hi', 'Hi!']) state = notesReducer(state, { type: 'update', id: 'a', changes: { title } })
+    expect(titles(state)[0]).toBe('Hi!')
+    expect(titles(notesReducer(state, { type: 'undo' }))[0]).toBe('')
+  })
+
+  it('starts a new step when typing moves to another field or note', () => {
+    let state = notesReducer(threeNotes, { type: 'update', id: 'a', changes: { title: 'Title' } })
+    state = notesReducer(state, { type: 'update', id: 'a', changes: { text: 'Text' } })
+    const undone = notesReducer(state, { type: 'undo' })
+    expect(undone.notes[0]).toMatchObject({ title: 'Title', text: '' })
+  })
+
+  it('starts a new step after any other action, even selecting', () => {
+    let state = notesReducer(threeNotes, { type: 'update', id: 'a', changes: { title: 'One' } })
+    state = notesReducer(state, { type: 'select', id: 'b' })
+    state = notesReducer(state, { type: 'update', id: 'a', changes: { title: 'One two' } })
+    expect(titles(notesReducer(state, { type: 'undo' }))[0]).toBe('One')
+  })
+
+  it('does not record selection or press-to-front as steps', () => {
+    let state = notesReducer(threeNotes, { type: 'select', id: 'a' })
+    state = notesReducer(state, { type: 'press', id: 'a' })
+    expect(state.past).toHaveLength(threeNotes.past.length)
+  })
+
+  it('clears redo after a new change', () => {
+    const undone = notesReducer(threeNotes, { type: 'undo' })
+    const changed = notesReducer(undone, { type: 'moveLayer', id: 'a', direction: 'forward' })
+    expect(changed.future).toEqual([])
+    expect(notesReducer(changed, { type: 'redo' })).toBe(changed)
+  })
+
+  it('keeps the selection only when the note still exists', () => {
+    expect(notesReducer(threeNotes, { type: 'undo' }).selectedId).toBeNull()
+    const moved = notesReducer(threeNotes, { type: 'setRect', id: 'c', rect: { ...rect, x: 99 } })
+    expect(notesReducer(moved, { type: 'undo' }).selectedId).toBe('c')
+  })
+
+  it('returns the same state with nothing to undo or redo', () => {
+    expect(notesReducer(INITIAL_NOTES_STATE, { type: 'undo' })).toBe(INITIAL_NOTES_STATE)
+    expect(notesReducer(threeNotes, { type: 'redo' })).toBe(threeNotes)
+  })
+
+  it('keeps at most 100 steps', () => {
+    let state = INITIAL_NOTES_STATE
+    for (let i = 0; i < 120; i += 1) state = notesReducer(state, { type: 'add', id: `n${i}`, rect })
+    expect(state.past).toHaveLength(100)
   })
 })

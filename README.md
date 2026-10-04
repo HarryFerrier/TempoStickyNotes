@@ -53,7 +53,7 @@ Runs the unit and component tests with Vitest: the notes reducer, the geometry h
 npm run e2e
 ```
 
-Builds the app, serves the production build, and runs Playwright tests in your installed Chrome: drawing and editing a note and finding it after a reload, moving and resizing, and deleting on the trash zone. Without Chrome installed, run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`.
+Builds the app, serves the production build, and runs Playwright tests in your installed Chrome: drawing and editing a note and finding it after a reload, drawing without selecting other notes' text, moving and resizing, deleting on the trash zone, and undo and redo. Without Chrome installed, run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`.
 
 ## Lint
 
@@ -63,7 +63,7 @@ npm run lint
 
 ## Architecture
 
-The app is React and TypeScript, built with Vite and styled with Tailwind CSS from the Tempo design tokens. Notes are typed records (id, position and size, stacking order, title, text and colour). One pure reducer owns the notes and the selection, and every change is a typed action, so the compiler rejects any action the reducer doesn't handle. Only the reducer's dispatch is shared through context. Note data is passed down as props, which lets each memoised note re-render only when its own data changes.
+The app is React and TypeScript, built with Vite and styled with Tailwind CSS from the Tempo design tokens. Notes are typed records (id, position and size, stacking order, title, text and colour). One pure reducer owns the notes and the selection, and every change is a typed action, so the compiler rejects any action the reducer doesn't handle. Only the reducer's dispatch is shared through context. Note data is passed down as props, which lets each memoised note re-render only when its own data changes. Because every change goes through the reducer, it also keeps an undo history: Cmd/Ctrl+Z undoes and Shift+Cmd/Ctrl+Z redoes, with a burst of typing undone as one step.
 
 Drawing, moving and resizing use pointer events with pointer capture. During a drag, the outline or note is updated directly in the DOM and the change is committed to state once, on release, so a drag never re-renders the board. Small pure functions handle the geometry: the minimum size, keeping notes on the board, and placing new notes. Notes also work from the keyboard: arrow keys move or resize them, Delete removes them and Escape cancels a gesture. No drag, resize or component libraries are used.
 

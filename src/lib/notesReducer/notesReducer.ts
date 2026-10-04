@@ -1,12 +1,26 @@
 import { NOTE_COLORS, type LayerDirection, type Note, type NoteContent, type Rect, type SavedBoard, type Size } from '../../models/note'
 import { clampRectToBounds, sameRect } from '../geometry/geometry'
 
-export type NotesState = {
+/** The part of the state that undo and redo restore. */
+type Snapshot = {
   notes: Note[]
-  selectedId: string | null
-  /** How many notes have been created, which picks the next colour. */
   created: number
 }
+
+export type NotesState = Snapshot & {
+  selectedId: string | null
+  /** Earlier snapshots, oldest first, for undo. */
+  past: Snapshot[]
+  /** Undone snapshots, most recent last, for redo. */
+  future: Snapshot[]
+  /** Identifies the last text edit, so a burst of typing in one field undoes as one step. */
+  lastEdit: string | null
+}
+
+const HISTORY_LIMIT = 100
+
+/** Changes a person would expect undo to reverse. Selection, press-to-front, loading and fitting are not. */
+const UNDOABLE = new Set<NotesAction['type']>(['add', 'setRect', 'update', 'remove', 'moveLayer'])
 
 export type NotesAction =
   /** Adds a note in front of all others and selects it. The id is made by the caller, which keeps this reducer pure. */
@@ -24,8 +38,10 @@ export type NotesAction =
   | { type: 'load'; board: SavedBoard }
   /** Moves any note that sticks out of the board back inside it, for when the board shrinks. */
   | { type: 'fitToBoard'; bounds: Size }
+  | { type: 'undo' }
+  | { type: 'redo' }
 
-export const INITIAL_NOTES_STATE: NotesState = { notes: [], selectedId: null, created: 0 }
+export const INITIAL_NOTES_STATE: NotesState = { notes: [], selectedId: null, created: 0, past: [], future: [], lastEdit: null }
 
 function frontZ(notes: Note[]) {
   return notes.reduce((max, note) => Math.max(max, note.z), 0)
@@ -67,8 +83,49 @@ function moveLayer(notes: Note[], id: string, direction: LayerDirection) {
   })
 }
 
-// Every action must be handled: the return type rejects a switch that misses one.
+function snapshot({ notes, created }: NotesState): Snapshot {
+  return { notes, created }
+}
+
+/** Moves to a snapshot from the history, keeping the selection only if that note still exists. */
+function restore(state: NotesState, target: Snapshot, past: Snapshot[], future: Snapshot[]): NotesState {
+  const selectedId = target.notes.some((note) => note.id === state.selectedId) ? state.selectedId : null
+  return { ...target, selectedId, past, future, lastEdit: null }
+}
+
+/** Applies an action and keeps the undo history up to date. */
 export function notesReducer(state: NotesState, action: NotesAction): NotesState {
+  if (action.type === 'undo') {
+    const previous = state.past.at(-1)
+    if (!previous) return state
+    return restore(state, previous, state.past.slice(0, -1), [...state.future, snapshot(state)])
+  }
+
+  if (action.type === 'redo') {
+    const next = state.future.at(-1)
+    if (!next) return state
+    return restore(state, next, [...state.past, snapshot(state)], state.future.slice(0, -1))
+  }
+
+  const next = applyAction(state, action)
+  const editKey = action.type === 'update' ? `${action.id}:${Object.keys(action.changes).sort().join()}` : null
+
+  if (!UNDOABLE.has(action.type) || next.notes === state.notes) {
+    // Anything else ends a typing burst, so the next edit starts a new undo step.
+    return state.lastEdit === null || next === state ? next : { ...next, lastEdit: null }
+  }
+
+  const continuesEdit = editKey !== null && editKey === state.lastEdit
+  return {
+    ...next,
+    past: continuesEdit ? state.past : [...state.past, snapshot(state)].slice(-HISTORY_LIMIT),
+    future: [],
+    lastEdit: editKey,
+  }
+}
+
+// Every action must be handled: the return type rejects a switch that misses one.
+function applyAction(state: NotesState, action: Exclude<NotesAction, { type: 'undo' | 'redo' }>): NotesState {
   switch (action.type) {
     case 'add': {
       const note: Note = {
@@ -79,7 +136,7 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
         text: '',
         color: NOTE_COLORS[state.created % NOTE_COLORS.length],
       }
-      return { notes: [...state.notes, note], selectedId: note.id, created: state.created + 1 }
+      return { ...state, notes: [...state.notes, note], selectedId: note.id, created: state.created + 1 }
     }
 
     case 'press': {
@@ -110,7 +167,7 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
     }
 
     case 'load':
-      return { notes: action.board.notes, selectedId: null, created: action.board.created }
+      return { ...INITIAL_NOTES_STATE, notes: action.board.notes, created: action.board.created }
 
     case 'fitToBoard': {
       const notes = fitToBoard(state.notes, action.bounds)
