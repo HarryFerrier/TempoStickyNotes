@@ -1,0 +1,347 @@
+/*
+ * Sticky Notes design tokens, Tailwind CSS v4 format.
+ * Palette, type, radius and easing values read from tempo.io on 2026-10-04.
+ * Semantic roles (light/dark) match the Board, Foundations and Components artboards.
+ *
+ * Fonts are self-hosted variable files; see fonts.css.
+ * Articulat CF is Adobe Fonts-licensed; Hanken Grotesk is the stand-in.
+ */
+
+@import "tailwindcss";
+@import "./fonts.css";
+
+/* Dark mode is class-driven: toggle `.dark` on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ───────────── Primitives (become utilities: bg-vision-500, text-ink, rounded-4 …) ───────────── */
+@theme {
+  /* Drop Tailwind's default palette so only Tempo colours are available. */
+  --color-*: initial;
+
+  --color-ink: #0d0d14;
+  --color-paper: #f3f1ec;
+
+  --color-neutral-50: #fefefe;
+  --color-neutral-100: #e6e6e6;
+  --color-neutral-1000: #292929;
+  --color-neutral-1050: #0a0a0a;
+  --color-neutral-1100: #000;
+
+  --color-eclipse-50: #ececf4;
+  --color-eclipse-100: #d2d3e5;
+  --color-eclipse-900: #292b46;
+  --color-eclipse-1000: #1a1c2d;
+  --color-eclipse-1100: #0b0c13;
+
+  --color-alloy-25: #fbfbfd;
+  --color-alloy-50: #fafafa;
+  --color-alloy-100: #e4e5e7;
+  --color-alloy-200: #ced0d4;
+  --color-alloy-300: #b8bbc1;
+  --color-alloy-400: #a2a6ae;
+  --color-alloy-500: #8d919b;
+  --color-alloy-600: #777d88;
+  --color-alloy-700: #646972;
+  --color-alloy-800: #51555d;
+  --color-alloy-900: #3e4147;
+
+  --color-vision-100: #d6d1f5;
+  --color-vision-200: #b8b0ed;
+  --color-vision-300: #9a8fe6;
+  --color-vision-400: #7c6dde;
+  --color-vision-500: #604ed7;
+  --color-vision-700: #3827ab;
+
+  --color-clarity-100: #d3f1fd;
+  --color-clarity-200: #abe4fc;
+  --color-clarity-300: #84d7fb;
+  --color-clarity-400: #5ccbf9;
+  --color-clarity-500: #35bef8;
+  --color-clarity-800: #067bad;
+  --color-clarity-900: #055f85;
+  --color-clarity-1000: #03435e;
+
+  --color-ignition-100: #ffd8cc;
+  --color-ignition-200: #ffb9a3;
+  --color-ignition-300: #ff9a7a;
+  --color-ignition-400: #ff7c52;
+  --color-ignition-500: #ff5c28;
+  --color-ignition-600: #ff3e00;
+  --color-ignition-700: #d63400;
+  --color-ignition-800: #ad2a00;
+  --color-ignition-900: #852000;
+
+  --color-success-100: #daf3e1;
+  --color-success-300: #97ddaf;
+  --color-success-400: #79d39a;
+  --color-success-500: #5bc988;
+  --color-success-700: #33a466;
+  --color-success-800: #298653;
+  --color-success-900: #20673f;
+
+  /* Type */
+  --font-display: "Epilogue", system-ui, sans-serif;
+  --font-body: "articulat-cf", "Hanken Grotesk", system-ui, sans-serif;
+
+  --text-11: 0.6875rem;
+  --text-12: 0.75rem;
+  --text-14: 0.875rem;
+  --text-16: 1rem;
+  --text-18: 1.125rem;
+  --text-20: 1.25rem;
+  --text-22: 1.375rem;
+  --text-28: 1.75rem;
+  --text-36: 2.25rem;
+  --text-54: 3.375rem;
+
+  --leading-display: 1.1;
+  --leading-tight: 1.2;
+  --leading-normal: 1.4;
+  --leading-relaxed: 1.5;
+
+  --tracking-heading-xl: -0.02em;
+  --tracking-heading-lg: -0.018em;
+  --tracking-heading-sm: -0.012em;
+  --tracking-eyebrow: 0.12em;
+  --tracking-label: 0.4px;
+
+  /* Shape */
+  --radius-xs: 0.125rem;
+  --radius-4: 4px;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* Space: Tailwind multiplies this base (p-4 = 16px). */
+  --spacing: 0.25rem;
+  --spacing-header: 3.75rem;
+
+  /* Motion */
+  --ease-settle: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-snap: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* ───────────── Semantic roles: light ───────────── */
+:root {
+  --board: var(--color-alloy-25);
+  --board-dot: var(--color-alloy-200);
+  --header: var(--color-ink);
+  --header-line: transparent;
+
+  --fg: var(--color-ink);
+  --fg-secondary: var(--color-alloy-800);
+  --fg-meta: var(--color-alloy-700);
+  --line-subtle: var(--color-alloy-200);
+  --line-field: var(--color-alloy-300);
+
+  --action-primary: var(--color-eclipse-1000);
+  --action-primary-hover: var(--color-eclipse-900);
+  --fg-on-action: var(--color-neutral-50);
+
+  --focus: var(--color-vision-500);
+  --ghost: rgba(96, 78, 215, 0.08);
+  --badge: var(--color-eclipse-1000);
+  --fg-on-badge: var(--color-neutral-50);
+
+  --danger: var(--color-ignition-800);
+  --danger-fg: var(--color-ignition-900);
+  --danger-subtle: rgba(173, 42, 0, 0.1);
+  --success: var(--color-success-900);
+
+  --trash: rgba(254, 254, 254, 0.7);
+  --trash-line: var(--color-alloy-300);
+  --trash-fg: var(--color-alloy-700);
+
+  --note-fg: var(--color-ink);
+  --note-fg-secondary: var(--color-alloy-900);
+  --note-handle: var(--color-alloy-800);
+  --swatch-line: rgba(13, 13, 20, 0.25);
+
+  --shadow-rest: 0 5px 14px -4px rgba(13, 13, 20, 0.16);
+  --shadow-lift: 0 16px 40px -20px rgba(13, 13, 20, 0.45);
+
+  --note-clarity: var(--color-clarity-100);
+  --note-clarity-strip: var(--color-clarity-200);
+  --note-clarity-grip: var(--color-clarity-900);
+  --note-vision: var(--color-vision-100);
+  --note-vision-strip: var(--color-vision-200);
+  --note-vision-grip: var(--color-vision-700);
+  --note-ignition: var(--color-ignition-100);
+  --note-ignition-strip: var(--color-ignition-200);
+  --note-ignition-grip: var(--color-ignition-900);
+  --note-success: var(--color-success-100);
+  --note-success-strip: var(--color-success-300);
+  --note-success-grip: var(--color-success-900);
+  --note-paper: var(--color-paper);
+  --note-paper-strip: var(--color-alloy-100);
+  --note-paper-grip: var(--color-alloy-800);
+
+  /* Tempo's primary-button edge: clarity → vision → ignition */
+  --edge-spectrum: linear-gradient(
+    to right,
+    var(--color-clarity-500),
+    var(--color-vision-500),
+    var(--color-ignition-500)
+  );
+}
+
+/* ───────────── Semantic roles: dark ───────────── */
+.dark {
+  --board: var(--color-eclipse-1100);
+  --board-dot: rgba(255, 255, 255, 0.09);
+  --header-line: rgba(255, 255, 255, 0.08);
+
+  --fg: var(--color-neutral-50);
+  --fg-secondary: rgba(254, 254, 254, 0.86);
+  --fg-meta: var(--color-alloy-400);
+  --line-subtle: rgba(255, 255, 255, 0.08);
+  --line-field: rgba(255, 255, 255, 0.18);
+
+  --focus: var(--color-vision-300);
+  --ghost: rgba(96, 78, 215, 0.16);
+  --badge: var(--color-neutral-50);
+  --fg-on-badge: var(--color-ink);
+
+  --danger: var(--color-ignition-400);
+  --danger-fg: var(--color-ignition-300);
+  --danger-subtle: rgba(255, 92, 40, 0.16);
+  --success: var(--color-success-500);
+
+  --trash: rgba(255, 255, 255, 0.04);
+  --trash-line: rgba(255, 255, 255, 0.18);
+  --trash-fg: var(--color-alloy-400);
+
+  --note-fg: var(--color-neutral-50);
+  --note-fg-secondary: rgba(254, 254, 254, 0.86);
+  --note-handle: rgba(254, 254, 254, 0.76);
+  --swatch-line: rgba(255, 255, 255, 0.35);
+
+  --shadow-rest: 0 5px 14px -4px rgba(0, 0, 0, 0.56);
+  --shadow-lift: 0 16px 40px -20px rgba(0, 0, 0, 0.9);
+
+  --note-clarity: var(--color-clarity-1000);
+  --note-clarity-strip: var(--color-clarity-900);
+  --note-clarity-grip: rgba(254, 254, 254, 0.76);
+  --note-vision: var(--color-vision-700);
+  --note-vision-strip: var(--color-vision-500);
+  --note-vision-grip: rgba(254, 254, 254, 0.76);
+  --note-ignition: var(--color-ignition-900);
+  --note-ignition-strip: var(--color-ignition-800);
+  --note-ignition-grip: rgba(254, 254, 254, 0.76);
+  --note-success: var(--color-success-900);
+  --note-success-strip: var(--color-success-800);
+  --note-success-grip: rgba(254, 254, 254, 0.76);
+  --note-paper: var(--color-alloy-900);
+  --note-paper-strip: var(--color-alloy-800);
+  --note-paper-grip: rgba(254, 254, 254, 0.76);
+}
+
+/* ───────────── Expose roles as utilities (bg-board, text-fg-meta, shadow-rest …) ───────────── */
+@theme inline {
+  --color-board: var(--board);
+  --color-board-dot: var(--board-dot);
+  --color-header: var(--header);
+  --color-header-line: var(--header-line);
+
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-meta: var(--fg-meta);
+  --color-line-subtle: var(--line-subtle);
+  --color-line-field: var(--line-field);
+
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-hover: var(--action-primary-hover);
+  --color-fg-on-action: var(--fg-on-action);
+
+  --color-focus: var(--focus);
+  --color-ghost: var(--ghost);
+  --color-badge: var(--badge);
+  --color-fg-on-badge: var(--fg-on-badge);
+
+  --color-danger: var(--danger);
+  --color-danger-fg: var(--danger-fg);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-success: var(--success);
+
+  --color-trash: var(--trash);
+  --color-trash-line: var(--trash-line);
+  --color-trash-fg: var(--trash-fg);
+
+  --color-note: var(--note-bg);
+  --color-note-strip: var(--note-strip);
+  --color-note-grip: var(--note-grip);
+  --color-note-fg: var(--note-fg);
+  --color-note-fg-secondary: var(--note-fg-secondary);
+  --color-note-handle: var(--note-handle);
+  --color-swatch-line: var(--swatch-line);
+
+  --shadow-rest: var(--shadow-rest);
+  --shadow-lift: var(--shadow-lift);
+}
+
+/* ───────────── Per-note colour: set data-color on the note root ─────────────
+ * <div data-color="clarity" class="bg-note text-note-fg shadow-rest rounded-4">
+ *   <div class="bg-note-strip text-note-grip">…</div>
+ * </div>
+ */
+[data-color="clarity"] {
+  --note-bg: var(--note-clarity);
+  --note-strip: var(--note-clarity-strip);
+  --note-grip: var(--note-clarity-grip);
+}
+[data-color="vision"] {
+  --note-bg: var(--note-vision);
+  --note-strip: var(--note-vision-strip);
+  --note-grip: var(--note-vision-grip);
+}
+[data-color="ignition"] {
+  --note-bg: var(--note-ignition);
+  --note-strip: var(--note-ignition-strip);
+  --note-grip: var(--note-ignition-grip);
+}
+[data-color="success"] {
+  --note-bg: var(--note-success);
+  --note-strip: var(--note-success-strip);
+  --note-grip: var(--note-success-grip);
+}
+[data-color="paper"] {
+  --note-bg: var(--note-paper);
+  --note-strip: var(--note-paper-strip);
+  --note-grip: var(--note-paper-grip);
+}
+
+/* ───────────── Custom utilities ───────────── */
+
+/* Dotted board ground: <main class="board-grid"> */
+@utility board-grid {
+  background-color: var(--board);
+  background-image: radial-gradient(var(--board-dot) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Primary button fill with the 1px spectrum edge: <button class="btn-edge h-9 px-4.5 rounded-4 …"> */
+@utility btn-edge {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--action-primary), var(--action-primary)) padding-box,
+    var(--edge-spectrum) border-box;
+  color: var(--fg-on-action);
+
+  &:hover {
+    background:
+      linear-gradient(var(--action-primary-hover), var(--action-primary-hover)) padding-box,
+      var(--edge-spectrum) border-box;
+  }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    color: var(--fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
