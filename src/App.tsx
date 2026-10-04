@@ -8,7 +8,7 @@ import { newNoteRect } from './lib/geometry'
 
 function App() {
   const { theme, toggleTheme } = useTheme()
-  const { notes, addNote } = useNotes()
+  const { notes, addNote, bringToFront, setNoteRect } = useNotes()
   const boardRef = useRef<HTMLElement>(null)
   const newNotePresses = useRef(0)
 
@@ -25,7 +25,13 @@ function App() {
     <div className="flex h-dvh min-h-[768px] min-w-[1024px] flex-col">
       <AppHeader theme={theme} onToggleTheme={toggleTheme} saveState={null} onNewNote={handleNewNote} />
       <div className="flex min-h-0 flex-1">
-        <Board boardRef={boardRef} notes={notes} onCreateNote={addNote} />
+        <Board
+          boardRef={boardRef}
+          notes={notes}
+          onCreateNote={addNote}
+          onBringToFront={bringToFront}
+          onNoteRectChange={setNoteRect}
+        />
         <NotesPanel notes={notes} />
       </div>
     </div>

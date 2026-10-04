@@ -9,9 +9,11 @@ type BoardProps = {
   boardRef: RefObject<HTMLElement | null>
   notes: Note[]
   onCreateNote: (rect: Rect) => void
+  onBringToFront: (id: string) => void
+  onNoteRectChange: (id: string, rect: Rect) => void
 }
 
-export function Board({ boardRef, notes, onCreateNote }: BoardProps) {
+export function Board({ boardRef, notes, onCreateNote, onBringToFront, onNoteRectChange }: BoardProps) {
   const { draftRef, readoutRef, handlers } = useDrawToCreate(onCreateNote)
 
   return (
@@ -27,7 +29,7 @@ export function Board({ boardRef, notes, onCreateNote }: BoardProps) {
       {/* Own stacking context, so note z-indexes never climb above the draw outline. */}
       <div className="pointer-events-none absolute inset-0 isolate">
         {notes.map((note) => (
-          <StickyNote key={note.id} note={note} />
+          <StickyNote key={note.id} note={note} onBringToFront={onBringToFront} onRectChange={onNoteRectChange} />
         ))}
       </div>
 
