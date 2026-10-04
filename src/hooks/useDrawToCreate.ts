@@ -76,6 +76,10 @@ export function useDrawToCreate(onCreate: (rect: Rect) => void) {
       onPointerDown(event: PointerEvent<HTMLElement>) {
         // Only the board itself starts a draw, not notes or the trash zone on top of it.
         if (event.button !== 0 || event.target !== event.currentTarget) return
+        // Stops the browser selecting the text of every note the drag passes over.
+        event.preventDefault()
+        // preventDefault also stops focus leaving a note's field, so release it here.
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
         event.currentTarget.setPointerCapture(event.pointerId)
         gesture.current = { pointerId: event.pointerId, start: pointInBoard(event), rect: null }
       },
