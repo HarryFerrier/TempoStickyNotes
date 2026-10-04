@@ -39,6 +39,30 @@ export function meetsMinimumSize(size: Size) {
   return size.width >= MIN_NOTE_SIZE.width && size.height >= MIN_NOTE_SIZE.height
 }
 
+/** A rect moved by `delta`, kept inside the bounds. */
+export function movedRect(start: Rect, delta: Point, bounds: Size): Rect {
+  return clampRectToBounds({ ...start, x: start.x + delta.x, y: start.y + delta.y }, bounds)
+}
+
+/**
+ * A rect resized from its bottom-right corner by `delta`. It never goes below the
+ * minimum note size, which wins if the note somehow sits too close to the edge.
+ */
+export function resizedRect(start: Rect, delta: Point, bounds: Size): Rect {
+  const maxWidth = Math.max(MIN_NOTE_SIZE.width, bounds.width - start.x)
+  const maxHeight = Math.max(MIN_NOTE_SIZE.height, bounds.height - start.y)
+
+  return {
+    ...start,
+    width: Math.round(clamp(start.width + delta.x, MIN_NOTE_SIZE.width, maxWidth)),
+    height: Math.round(clamp(start.height + delta.y, MIN_NOTE_SIZE.height, maxHeight)),
+  }
+}
+
+export function sameRect(a: Rect, b: Rect) {
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height
+}
+
 /** A default-size note centred on the board, stepped down and right on repeat presses. */
 export function newNoteRect(bounds: Size, press: number): Rect {
   const offset = (press % NEW_NOTE_OFFSET_STEPS) * NEW_NOTE_OFFSET

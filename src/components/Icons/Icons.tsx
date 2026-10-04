@@ -84,6 +84,14 @@ export function GripIcon(props: IconProps) {
   )
 }
 
+export function ResizeIcon(props: IconProps) {
+  return (
+    <Icon strokeWidth={1.5} {...props}>
+      <path d="M13.5 6.5l-7 7M13.5 10.5l-3 3" />
+    </Icon>
+  )
+}
+
 export function CrosshairIcon(props: IconProps) {
   return (
     <Icon strokeWidth={1.1} {...props}>

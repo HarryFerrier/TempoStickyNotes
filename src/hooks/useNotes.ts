@@ -23,5 +23,18 @@ export function useNotes() {
     setNotes((current) => [...current, { id, rect, z: frontZ(current) + 1, title: '', text: '', color }])
   }, [])
 
-  return { notes, addNote }
+  const bringToFront = useCallback((id: string) => {
+    setNotes((current) => {
+      const top = frontZ(current)
+      // Returning the same array skips the re-render when the note is already in front.
+      if (current.find((note) => note.id === id)?.z === top) return current
+      return current.map((note) => (note.id === id ? { ...note, z: top + 1 } : note))
+    })
+  }, [])
+
+  const setNoteRect = useCallback((id: string, rect: Rect) => {
+    setNotes((current) => current.map((note) => (note.id === id ? { ...note, rect } : note)))
+  }, [])
+
+  return { notes, addNote, bringToFront, setNoteRect }
 }
