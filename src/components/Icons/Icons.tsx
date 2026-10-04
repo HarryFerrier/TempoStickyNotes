@@ -71,6 +71,19 @@ export function TrashIcon(props: IconProps) {
   )
 }
 
+export function GripIcon(props: IconProps) {
+  return (
+    <Icon fill="currentColor" stroke="none" {...props}>
+      <circle cx="5.5" cy="3.5" r="1.25" />
+      <circle cx="10.5" cy="3.5" r="1.25" />
+      <circle cx="5.5" cy="8" r="1.25" />
+      <circle cx="10.5" cy="8" r="1.25" />
+      <circle cx="5.5" cy="12.5" r="1.25" />
+      <circle cx="10.5" cy="12.5" r="1.25" />
+    </Icon>
+  )
+}
+
 export function CrosshairIcon(props: IconProps) {
   return (
     <Icon strokeWidth={1.1} {...props}>
