@@ -52,6 +52,29 @@ test('draw a note, write in it, and find it again after a reload', async ({ page
   expect(await box(note)).toEqual(before)
 })
 
+test('drawing across notes never selects their text or keeps a field focused', async ({ page }) => {
+  await drawNote(page, 200, 120, 300, 200)
+  await page.keyboard.type('Some words to select')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('And some more words here')
+
+  // Start on empty board and drag right across the note. The check happens mid-drag:
+  // on release the new note's title takes focus, which would hide a selection.
+  const start = await box(page.getByRole('main', { name: 'Board' }))
+  await page.mouse.move(start.x + 60, start.y + 180)
+  await page.mouse.down()
+  await page.mouse.move(start.x + 660, start.y + 340, { steps: 12 })
+  // toString() leaves out form fields, so check the selection is empty instead.
+  expect(await page.evaluate('window.getSelection().isCollapsed')).toBe(true)
+  await page.mouse.up()
+  await expect(notes(page)).toHaveCount(2)
+
+  // Pressing empty board leaves no field with the cursor.
+  const board = await box(page.getByRole('main', { name: 'Board' }))
+  await page.mouse.click(board.x + 40, board.y + board.height - 40)
+  expect(await page.evaluate('document.activeElement === document.body')).toBe(true)
+})
+
 test('move a note by its strip and resize it from the corner', async ({ page }) => {
   await drawNote(page, 120, 100, 260, 180)
   const note = notes(page).first()
