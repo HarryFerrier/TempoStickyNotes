@@ -6,19 +6,24 @@ import { EmptyBoardHint } from '../EmptyBoardHint/EmptyBoardHint'
 import { StickyNote } from '../StickyNote/StickyNote'
 import { TrashZone } from '../TrashZone/TrashZone'
 import { useDrawToCreate } from '../../hooks/useDrawToCreate'
+import { useFitNotesToBoard } from '../../hooks/useFitNotesToBoard'
 
 type BoardProps = {
   boardRef: RefObject<HTMLElement | null>
   notes: Note[]
   selectedId: string | null
+  /** False until the saved board has loaded; drawing waits so nothing created early gets replaced. */
+  loaded: boolean
 }
 
-export function Board({ boardRef, notes, selectedId }: BoardProps) {
+export function Board({ boardRef, notes, selectedId, loaded }: BoardProps) {
   const dispatch = useNotesDispatch()
   const trashRef = useRef<HTMLDivElement>(null)
   const { draftRef, readoutRef, handlers } = useDrawToCreate((rect) => dispatch({ type: 'add', id: createId(), rect }))
+  useFitNotesToBoard(boardRef, dispatch, loaded)
 
   function onPointerDown(event: PointerEvent<HTMLElement>) {
+    if (!loaded) return
     // Pressing empty board clears the selection, then may start a draw.
     if (event.target === event.currentTarget) dispatch({ type: 'select', id: null })
     handlers.onPointerDown(event)
@@ -28,11 +33,12 @@ export function Board({ boardRef, notes, selectedId }: BoardProps) {
     <main
       ref={boardRef}
       aria-label="Board"
+      aria-busy={!loaded}
       className="group board-grid relative min-w-0 flex-1 cursor-crosshair touch-none overflow-hidden"
       {...handlers}
       onPointerDown={onPointerDown}
     >
-      {notes.length === 0 && <EmptyBoardHint />}
+      {loaded && notes.length === 0 && <EmptyBoardHint />}
       <TrashZone ref={trashRef} />
 
       {/* Own stacking context, so note z-indexes never climb above the draw outline. */}
