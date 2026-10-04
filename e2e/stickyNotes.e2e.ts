@@ -118,3 +118,33 @@ test('drop a note on the trash zone to delete it', async ({ page }) => {
   await expect(page.getByRole('article', { name: 'Keep me' })).toBeVisible()
   await expect(page.getByRole('complementary', { name: 'Notes' }).getByRole('listitem')).toHaveCount(1)
 })
+
+test('undo brings back a note deleted on the trash zone, and redo deletes it again', async ({ page }) => {
+  await drawNote(page, 100, 100, 260, 180)
+  await page.keyboard.type('Oops')
+  await page.keyboard.press('Escape')
+
+  const strip = await box(page.getByRole('article', { name: 'Oops' }))
+  const trash = await box(page.getByText('Drop a note here to delete').locator('..'))
+  await drag(page, { x: strip.x + 60, y: strip.y + 16 }, { x: trash.x + trash.width / 2, y: trash.y + trash.height / 2 })
+  await expect(notes(page)).toHaveCount(0)
+
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect(page.getByRole('article', { name: 'Oops' })).toBeVisible()
+  await page.keyboard.press('ControlOrMeta+Shift+z')
+  await expect(notes(page)).toHaveCount(0)
+  await page.keyboard.press('ControlOrMeta+z')
+
+  // The restored note is saved like any other change.
+  await expect(saveStatus(page)).toHaveText('All changes saved')
+  await page.reload()
+  await expect(page.getByRole('article', { name: 'Oops' })).toBeVisible()
+})
+
+test('undo keys inside a field are left to the browser’s text undo', async ({ page }) => {
+  await drawNote(page, 100, 100, 260, 180)
+  await page.keyboard.type('Draft')
+  await page.keyboard.press('ControlOrMeta+z')
+  // The note is still there: the shortcut didn't undo adding it.
+  await expect(notes(page)).toHaveCount(1)
+})
