@@ -26,3 +26,8 @@ dist-ssr
 # Local design documents and PDFs
 *.pdf
 **/*.pdf
+
+# Local docs and Markdown notes (README.md stays tracked; the brief requires it)
+/docs/
+*.md
+!/README.md

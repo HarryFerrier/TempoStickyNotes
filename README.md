@@ -40,10 +40,6 @@ src/components/NoteCard/
 
 If an `index.ts` export is genuinely useful, we can add it, but only when it improves clarity or developer ergonomics. Avoid unnecessary barrel files.
 
-See:
-- [docs/iteration-plan.md](docs/iteration-plan.md)
-- [docs/branching.md](docs/branching.md)
-
 ## Ticket flow
 
 - One branch per ticket
