@@ -75,7 +75,7 @@ test('drawing across notes never selects their text or keeps a field focused', a
   expect(await page.evaluate('document.activeElement === document.body')).toBe(true)
 })
 
-test('move a note by its strip and resize it from the corner', async ({ page }) => {
+test('move a note by its strip and resize it from the bottom-right corner', async ({ page }) => {
   await drawNote(page, 120, 100, 260, 180)
   const note = notes(page).first()
   const start = await box(note)
@@ -85,17 +85,31 @@ test('move a note by its strip and resize it from the corner', async ({ page }) 
   expect(Math.round(moved.x - start.x)).toBe(200)
   expect(Math.round(moved.y - start.y)).toBe(100)
 
-  const handle = await box(note.getByRole('button', { name: /^Resize/ }))
+  const handle = await box(note.getByRole('button', { name: /from bottom right$/ }))
   await drag(page, { x: handle.x + 10, y: handle.y + 10 }, { x: handle.x + 70, y: handle.y + 50 })
   const resized = await box(note)
   expect(Math.round(resized.width - start.width)).toBe(60)
   expect(Math.round(resized.height - start.height)).toBe(40)
 
   // Never smaller than 160 × 120.
-  const corner = await box(note.getByRole('button', { name: /^Resize/ }))
+  const corner = await box(note.getByRole('button', { name: /from bottom right$/ }))
   await drag(page, { x: corner.x + 10, y: corner.y + 10 }, { x: corner.x - 400, y: corner.y - 400 })
   const smallest = await box(note)
   expect([Math.round(smallest.width), Math.round(smallest.height)]).toEqual([160, 120])
+})
+
+test('resize a note from its top-left corner, keeping the opposite corner in place', async ({ page }) => {
+  await drawNote(page, 200, 200, 260, 180)
+  const note = notes(page).first()
+  const start = await box(note)
+
+  const handle = await box(note.getByRole('button', { name: /from top left$/ }))
+  await drag(page, { x: handle.x + 10, y: handle.y + 10 }, { x: handle.x - 40, y: handle.y - 20 })
+  const resized = await box(note)
+  expect(Math.round(resized.x - start.x)).toBe(-50)
+  expect(Math.round(resized.y - start.y)).toBe(-30)
+  expect(Math.round(resized.x + resized.width)).toBe(Math.round(start.x + start.width))
+  expect(Math.round(resized.y + resized.height)).toBe(Math.round(start.y + start.height))
 })
 
 test('drop a note on the trash zone to delete it', async ({ page }) => {

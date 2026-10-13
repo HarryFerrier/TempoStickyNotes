@@ -64,20 +64,37 @@ describe('resizedRect', () => {
   const start = { x: 100, y: 100, width: 240, height: 180 }
 
   it('grows from the bottom-right corner, keeping the position', () => {
-    expect(resizedRect(start, { x: 60, y: 40 }, board)).toEqual({ ...start, width: 300, height: 220 })
+    expect(resizedRect(start, 'bottom-right', { x: 60, y: 40 }, board)).toEqual({ ...start, width: 300, height: 220 })
   })
 
   it('never goes below the minimum note size', () => {
-    expect(resizedRect(start, { x: -1000, y: -1000 }, board)).toEqual({ ...start, ...MIN_NOTE_SIZE })
+    expect(resizedRect(start, 'bottom-right', { x: -1000, y: -1000 }, board)).toEqual({ ...start, ...MIN_NOTE_SIZE })
   })
 
   it('stops at the board edges', () => {
-    expect(resizedRect(start, { x: 5000, y: 5000 }, board)).toEqual({ ...start, width: 900, height: 600 })
+    expect(resizedRect(start, 'bottom-right', { x: 5000, y: 5000 }, board)).toEqual({ ...start, width: 900, height: 600 })
   })
 
   it('keeps the minimum size even when the note sits too close to the edge', () => {
     const nearEdge = { x: 950, y: 650, width: 160, height: 120 }
-    expect(resizedRect(nearEdge, { x: -50, y: -50 }, board)).toEqual(nearEdge)
+    expect(resizedRect(nearEdge, 'bottom-right', { x: -50, y: -50 }, board)).toEqual(nearEdge)
+  })
+
+  it('grows from the top-left corner, keeping the bottom-right corner in place', () => {
+    expect(resizedRect(start, 'top-left', { x: -40, y: -30 }, board)).toEqual({ x: 60, y: 70, width: 280, height: 210 })
+  })
+
+  it('shrinks from the top-left corner to the minimum size without moving the bottom-right corner', () => {
+    expect(resizedRect(start, 'top-left', { x: 1000, y: 1000 }, board)).toEqual({ x: 180, y: 160, ...MIN_NOTE_SIZE })
+  })
+
+  it('stops the top-left corner at the board edges', () => {
+    expect(resizedRect(start, 'top-left', { x: -5000, y: -5000 }, board)).toEqual({ x: 0, y: 0, width: 340, height: 280 })
+  })
+
+  it('moves only the dragged edges from the top-right and bottom-left corners', () => {
+    expect(resizedRect(start, 'top-right', { x: 60, y: -30 }, board)).toEqual({ x: 100, y: 70, width: 300, height: 210 })
+    expect(resizedRect(start, 'bottom-left', { x: -30, y: 40 }, board)).toEqual({ x: 70, y: 100, width: 270, height: 220 })
   })
 })
 
