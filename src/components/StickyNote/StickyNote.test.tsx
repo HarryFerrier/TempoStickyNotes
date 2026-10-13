@@ -88,8 +88,15 @@ describe('StickyNote', () => {
     expect(dispatch.mock.calls.filter(([action]) => action.type === 'select' && action.id === null)).toHaveLength(2)
   })
 
-  it('has a labelled resize handle', () => {
+  it('has a labelled resize handle in each corner, with only the bottom-right one in the tab order', () => {
     renderNote()
-    expect(screen.getByRole('button', { name: 'Resize Plan' })).toBeTruthy()
+    const handles = screen.getAllByRole('button', { name: /^Resize Plan from / })
+    expect(handles.map((handle) => handle.getAttribute('aria-label'))).toEqual([
+      'Resize Plan from top left',
+      'Resize Plan from top right',
+      'Resize Plan from bottom left',
+      'Resize Plan from bottom right',
+    ])
+    expect(handles.map((handle) => handle.tabIndex)).toEqual([-1, -1, -1, 0])
   })
 })

@@ -53,7 +53,7 @@ Runs the unit and component tests with Vitest: the notes reducer, the geometry h
 npm run e2e
 ```
 
-Builds the app, serves the production build, and runs Playwright tests in your installed Chrome: drawing and editing a note and finding it after a reload, drawing without selecting other notes' text, moving and resizing, deleting on the trash zone, and undo and redo. Without Chrome installed, run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`.
+Builds the app, serves the production build, and runs Playwright tests in your installed Chrome: drawing and editing a note and finding it after a reload, drawing without selecting other notes' text, moving, resizing from the bottom-right and top-left corners, deleting on the trash zone, and undo and redo. Without Chrome installed, run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`.
 
 ## Lint
 

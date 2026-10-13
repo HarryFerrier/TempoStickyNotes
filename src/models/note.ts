@@ -24,6 +24,11 @@ export type Size = {
 /** Position and size in board pixels, measured from the board's top-left corner. */
 export type Rect = Point & Size
 
+export const CORNERS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const
+
+/** A corner of a note, which can be dragged to resize it. */
+export type Corner = (typeof CORNERS)[number]
+
 export type Note = {
   id: string
   rect: Rect

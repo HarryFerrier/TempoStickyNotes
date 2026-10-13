@@ -1,8 +1,9 @@
 import { memo, useRef, type KeyboardEvent, type RefObject } from 'react'
 import { useNotesDispatch } from '../../hooks/useNotesDispatch'
-import type { Note } from '../../models/note'
+import { CORNERS, type Note } from '../../models/note'
 import { ColourSwatches } from '../ColourSwatches/ColourSwatches'
-import { GripIcon, ResizeIcon } from '../Icons/Icons'
+import { GripIcon } from '../Icons/Icons'
+import { ResizeButton } from '../ResizeButton/ResizeButton'
 import { useNoteGesture } from '../../hooks/useNoteGesture'
 
 type StickyNoteProps = {
@@ -49,7 +50,7 @@ export const StickyNote = memo(function StickyNote({ note, selected, trashRef }:
           deselect()
         }
       }}
-      className="pointer-events-auto absolute top-0 left-0 flex cursor-default select-none flex-col overflow-hidden rounded-4 bg-note text-note-fg shadow-rest transition-opacity data-gesture:shadow-lift data-over-trash:opacity-50 data-selected:shadow-lift data-selected:outline-[1.5px] data-selected:outline-focus data-selected:outline-solid"
+      className="group/note pointer-events-auto absolute top-0 left-0 flex cursor-default select-none flex-col overflow-hidden rounded-4 bg-note text-note-fg shadow-rest transition-opacity data-gesture:shadow-lift data-over-trash:opacity-50 data-selected:shadow-lift data-selected:outline-[1.5px] data-selected:outline-focus data-selected:outline-solid"
       style={{
         transform: `translate(${rect.x}px, ${rect.y}px)`,
         width: rect.width,
@@ -95,16 +96,16 @@ export const StickyNote = memo(function StickyNote({ note, selected, trashRef }:
         />
       </div>
 
-      <button
-        type="button"
-        aria-label={`Resize ${label}`}
-        onPointerDown={startResize}
-        onKeyDown={onResizeKeyDown}
-        {...gestureHandlers}
-        className="absolute right-0 bottom-0 flex size-5 cursor-nwse-resize items-center justify-center rounded-4 text-note-handle"
-      >
-        <ResizeIcon className="size-3" />
-      </button>
+      {CORNERS.map((corner) => (
+        <ResizeButton
+          key={corner}
+          corner={corner}
+          noteLabel={label}
+          onPointerDown={(event) => startResize(corner, event)}
+          onKeyDown={(event) => onResizeKeyDown(corner, event)}
+          {...gestureHandlers}
+        />
+      ))}
     </article>
   )
 })

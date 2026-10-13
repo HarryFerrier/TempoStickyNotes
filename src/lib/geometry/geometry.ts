@@ -1,4 +1,4 @@
-import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE, type Point, type Rect, type Size } from '../../models/note'
+import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE, type Corner, type Point, type Rect, type Size } from '../../models/note'
 
 const NEW_NOTE_OFFSET = 24
 const NEW_NOTE_OFFSET_STEPS = 5
@@ -44,19 +44,42 @@ export function movedRect(start: Rect, delta: Point, bounds: Size): Rect {
   return clampRectToBounds({ ...start, x: start.x + delta.x, y: start.y + delta.y }, bounds)
 }
 
-/**
- * A rect resized from its bottom-right corner by `delta`. It never goes below the
- * minimum note size, which wins if the note somehow sits too close to the edge.
- */
-export function resizedRect(start: Rect, delta: Point, bounds: Size): Rect {
-  const maxWidth = Math.max(MIN_NOTE_SIZE.width, bounds.width - start.x)
-  const maxHeight = Math.max(MIN_NOTE_SIZE.height, bounds.height - start.y)
+type Span = { start: number; size: number }
 
-  return {
-    ...start,
-    width: Math.round(clamp(start.width + delta.x, MIN_NOTE_SIZE.width, maxWidth)),
-    height: Math.round(clamp(start.height + delta.y, MIN_NOTE_SIZE.height, maxHeight)),
+/** One axis of a resize: the dragged edge moves by `delta` while the opposite edge stays put. */
+function resizedSpan(span: Span, delta: number, min: number, limit: number, edge: 'start' | 'end'): Span {
+  if (edge === 'end') {
+    const max = Math.max(min, limit - span.start)
+    return { start: span.start, size: Math.round(clamp(span.size + delta, min, max)) }
   }
+
+  const end = span.start + span.size
+  const start = Math.round(clamp(span.start + delta, 0, end - min))
+  return { start, size: end - start }
+}
+
+/**
+ * A rect resized by dragging `corner` by `delta`; the opposite corner stays put.
+ * It never goes below the minimum note size, which wins if the note somehow sits
+ * too close to the edge.
+ */
+export function resizedRect(start: Rect, corner: Corner, delta: Point, bounds: Size): Rect {
+  const horizontal = resizedSpan(
+    { start: start.x, size: start.width },
+    delta.x,
+    MIN_NOTE_SIZE.width,
+    bounds.width,
+    corner.endsWith('left') ? 'start' : 'end',
+  )
+  const vertical = resizedSpan(
+    { start: start.y, size: start.height },
+    delta.y,
+    MIN_NOTE_SIZE.height,
+    bounds.height,
+    corner.startsWith('top') ? 'start' : 'end',
+  )
+
+  return { x: horizontal.start, y: vertical.start, width: horizontal.size, height: vertical.size }
 }
 
 export function sameRect(a: Rect, b: Rect) {

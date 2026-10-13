@@ -1,11 +1,11 @@
 import { useRef, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
 import { movedRect, resizedRect, sameRect } from '../lib/geometry/geometry'
-import type { Note, Point, Rect, Size } from '../models/note'
+import type { Corner, Note, Point, Rect, Size } from '../models/note'
 
-type GestureKind = 'move' | 'resize'
+/** What a drag does: move the note by its strip, or resize it from one corner. */
+type GestureAction = { kind: 'move' } | { kind: 'resize'; corner: Corner }
 
-type Gesture = {
-  kind: GestureKind
+type Gesture = GestureAction & {
   pointerId: number
   start: Point
   startRect: Rect
@@ -42,7 +42,7 @@ function isPointerOver(element: HTMLElement | null, event: PointerEvent<HTMLElem
 }
 
 /**
- * Moving (by the strip) and resizing (by the corner handle). While the pointer
+ * Moving (by the strip) and resizing (by any of the corner handles). While the pointer
  * moves, the note element is updated directly; the new rect is committed to
  * state once, on release. Releasing a move with the pointer over the trash zone
  * deletes the note instead. Escape puts the note back where it started.
@@ -94,9 +94,9 @@ export function useNoteGesture(note: Note, { trashRef, onRectChange, onDelete }:
     end()
   }
 
-  function start(kind: GestureKind, event: PointerEvent<HTMLElement>) {
+  function start(action: GestureAction, event: PointerEvent<HTMLElement>) {
     // Buttons inside the strip, like the colour swatches, keep their own clicks.
-    const pressedButton = kind === 'move' && (event.target as HTMLElement).closest('button')
+    const pressedButton = action.kind === 'move' && (event.target as HTMLElement).closest('button')
     if (event.button !== 0 || !noteRef.current || pressedButton) return
     // Stops text selection while dragging.
     event.preventDefault()
@@ -108,7 +108,7 @@ export function useNoteGesture(note: Note, { trashRef, onRectChange, onDelete }:
     window.addEventListener('keydown', onKeyDown)
 
     gesture.current = {
-      kind,
+      ...action,
       pointerId: event.pointerId,
       start: { x: event.clientX, y: event.clientY },
       startRect: note.rect,
@@ -116,7 +116,7 @@ export function useNoteGesture(note: Note, { trashRef, onRectChange, onDelete }:
       overTrash: false,
       stopListening: () => window.removeEventListener('keydown', onKeyDown),
     }
-    noteRef.current.dataset.gesture = kind
+    noteRef.current.dataset.gesture = action.kind
   }
 
   const gestureHandlers = {
@@ -129,7 +129,7 @@ export function useNoteGesture(note: Note, { trashRef, onRectChange, onDelete }:
       current.rect =
         current.kind === 'move'
           ? movedRect(current.startRect, delta, bounds)
-          : resizedRect(current.startRect, delta, bounds)
+          : resizedRect(current.startRect, current.corner, delta, bounds)
       paint(current.rect)
       if (current.kind === 'move') setOverTrash(current, isPointerOver(trashRef.current, event))
     },
@@ -151,16 +151,17 @@ export function useNoteGesture(note: Note, { trashRef, onRectChange, onDelete }:
   return {
     noteRef,
     gestureHandlers,
-    startMove: (event: PointerEvent<HTMLElement>) => start('move', event),
-    startResize: (event: PointerEvent<HTMLElement>) => start('resize', event),
+    startMove: (event: PointerEvent<HTMLElement>) => start({ kind: 'move' }, event),
+    startResize: (corner: Corner, event: PointerEvent<HTMLElement>) => start({ kind: 'resize', corner }, event),
 
-    onResizeKeyDown(event: KeyboardEvent<HTMLElement>) {
+    /** Arrow keys on a focused handle move that corner. */
+    onResizeKeyDown(corner: Corner, event: KeyboardEvent<HTMLElement>) {
       const delta = ARROW_DELTAS[event.key]
       const bounds = boardSize()
       if (!delta || !bounds) return
 
       event.preventDefault()
-      const rect = resizedRect(note.rect, delta, bounds)
+      const rect = resizedRect(note.rect, corner, delta, bounds)
       if (!sameRect(rect, note.rect)) onRectChange(note.id, rect)
     },
 
